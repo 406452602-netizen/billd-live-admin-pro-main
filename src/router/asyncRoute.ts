@@ -196,7 +196,10 @@ export const asyncRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/user/list/index.vue'),
         meta: {
           title: 'router.userList',
-          roles: [DEFAULT_ROLE_INFO.SUPER_ADMIN.role_value],
+          roles: [
+            DEFAULT_ROLE_INFO.SUPER_ADMIN.role_value,
+            DEFAULT_ROLE_INFO.ADMIN.role_value,
+          ],
         },
       },
       {

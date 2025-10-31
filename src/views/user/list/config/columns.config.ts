@@ -25,7 +25,11 @@ export const columnsConfig = (
               size: 'small',
               type: 'primary',
               text: true,
-              onClick: () => handleUserIdClick(row.id!),
+              onClick: () => {
+                if (row.id !== undefined) {
+                  handleUserIdClick!(row.id);
+                }
+              },
             },
             { default: () => row.id }
           );

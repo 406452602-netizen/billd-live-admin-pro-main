@@ -134,6 +134,7 @@ import HModal from '@/components/Base/Modal';
 import HSearch from '@/components/Base/Search';
 import { usePage } from '@/hooks/use-page';
 import { IList, IUser, modalUserTypeEnum } from '@/interface';
+import { useUserStore } from '@/store/user';
 
 import AddUser from '../add/index.vue';
 
@@ -184,6 +185,7 @@ const addUserRef = ref<InstanceType<typeof AddUser>>();
 const breadcrumbList = ref<any[]>([]);
 // 保存原始参数，用于在没有数据时恢复
 const originalParams = ref({ ...params.value });
+const userStore = useUserStore();
 
 // 处理用户ID点击事件
 const handleUserIdClick = async (userId: any) => {
@@ -247,88 +249,98 @@ const handleBreadcrumbClick = (index: number) => {
 };
 
 const createColumns = (): TableColumns<IUser> => {
-  const action: TableColumns<IUser> = [
-    {
-      title: '操作',
-      key: 'actions',
-      width: 200,
-      fixed: 'right',
-      align: 'center',
-      render(row) {
-        return h(NSpace, { justify: 'center' }, () => [
-          h(
-            NButton,
-            {
-              size: 'small',
-              onClick: () => {
-                // modalTitle.value = '充值';
-                modalWallet.value = true;
-                formWallet.value = {
-                  amount: null,
-                  remark: '',
-                  user_id: row.id,
-                };
-              },
-            },
-            () => '充值' // 用箭头函数返回性能更好。
-          ),
-          h(
-            NButton,
-            {
-              size: 'small',
-              onClick: async () => {
-                const { data } = await fetchUserDetail(row.id!);
-                // @ts-ignore
-                data.qq_users = data.qq_users?.length ? 1 : 2;
-                // @ts-ignore
-                data.github_users = data.github_users?.length ? 1 : 2;
-                // @ts-ignore
-                data.email_users = data.email_users?.length ? 1 : 2;
-                let avatar: UploadFileInfo[] = [];
-                if (row.avatar) {
-                  avatar = [
-                    {
-                      id: row.avatar as string,
-                      name: row.avatar as string,
-                      url: row.avatar as string,
-                      status: 'finished',
-                      percentage: 100,
-                    },
-                  ];
-                }
-                currRow.value = { ...data, avatar };
-                modalType.value = modalUserTypeEnum.EDIT;
-                modalVisiable.value = !modalVisiable.value;
-              },
-            },
-            () => '编辑' // 用箭头函数返回性能更好。
-          ),
-          h(
-            NButton,
-            {
-              size: 'small',
-              type: 'primary',
-              onClick: async () => {
-                const userInfo = await fetchUserDetail(row.id!);
-                const userRole = await fetchUserRole(row.id!);
-                await ajaxFetchTreeRole();
+  // 判断当前登录用户是否是管理员
+  const isAdmin = userStore.userInfo?.is_admin;
 
-                formValue.value = {
-                  ...userInfo.data,
-                  user_roles: userRole.data.result.map((v) => v.id),
-                };
-                modalTitle.value = '编辑角色';
-                modalType.value = modalUserTypeEnum.EDIT_ROLE;
-                modalVisiable.value = !modalVisiable.value;
+  let columns = [...columnsConfig(t, handleUserIdClick)];
+
+  // 只有管理员才添加操作列
+  if (isAdmin) {
+    const action: TableColumns<IUser> = [
+      {
+        title: '操作',
+        key: 'actions',
+        width: 200,
+        fixed: 'right',
+        align: 'center',
+        render(row) {
+          return h(NSpace, { justify: 'center' }, () => [
+            h(
+              NButton,
+              {
+                size: 'small',
+                onClick: () => {
+                  // modalTitle.value = '充值';
+                  modalWallet.value = true;
+                  formWallet.value = {
+                    amount: null,
+                    remark: '',
+                    user_id: row.id,
+                  };
+                },
               },
-            },
-            () => '编辑角色' // 用箭头函数返回性能更好。
-          ),
-        ]);
+              () => '充值' // 用箭头函数返回性能更好。
+            ),
+            h(
+              NButton,
+              {
+                size: 'small',
+                onClick: async () => {
+                  const { data } = await fetchUserDetail(row.id!);
+                  // @ts-ignore
+                  data.qq_users = data.qq_users?.length ? 1 : 2;
+                  // @ts-ignore
+                  data.github_users = data.github_users?.length ? 1 : 2;
+                  // @ts-ignore
+                  data.email_users = data.email_users?.length ? 1 : 2;
+                  let avatar: UploadFileInfo[] = [];
+                  if (row.avatar) {
+                    avatar = [
+                      {
+                        id: row.avatar as string,
+                        name: row.avatar as string,
+                        url: row.avatar as string,
+                        status: 'finished',
+                        percentage: 100,
+                      },
+                    ];
+                  }
+                  currRow.value = { ...data, avatar };
+                  modalType.value = modalUserTypeEnum.EDIT;
+                  modalVisiable.value = !modalVisiable.value;
+                },
+              },
+              () => '编辑' // 用箭头函数返回性能更好。
+            ),
+            h(
+              NButton,
+              {
+                size: 'small',
+                type: 'primary',
+                onClick: async () => {
+                  const userInfo = await fetchUserDetail(row.id!);
+                  const userRole = await fetchUserRole(row.id!);
+                  await ajaxFetchTreeRole();
+
+                  formValue.value = {
+                    ...userInfo.data,
+                    user_roles: userRole.data.result.map((v) => v.id),
+                  };
+                  modalTitle.value = '编辑角色';
+                  modalType.value = modalUserTypeEnum.EDIT_ROLE;
+                  modalVisiable.value = !modalVisiable.value;
+                },
+              },
+              () => '编辑角色' // 用箭头函数返回性能更好。
+            ),
+          ]);
+        },
       },
-    },
-  ];
-  return [...columnsConfig(t, handleUserIdClick), ...action];
+    ];
+    columns = [...columns, ...action];
+  }
+
+  return columns;
 };
 const searchForm = ref(searchFormConfig(t));
 
