@@ -105,7 +105,7 @@
               label-placement="left"
               size="large"
               :model="loginForm"
-              :rules="loginRules"
+              :rules="baseRules"
             >
               <n-form-item path="id">
                 <n-input
@@ -188,7 +188,7 @@
               label-placement="left"
               size="large"
               :model="loginForm"
-              :rules="loginRules"
+              :rules="registerRules"
             >
               <n-form-item path="id">
                 <n-input
@@ -211,7 +211,7 @@
                   v-model:value="loginForm.password"
                   type="password"
                   show-password-on="mousedown"
-                  placeholder="请输入密码"
+                  placeholder="请输入密码(至少包含字母和数字)"
                   @focus="onFocus"
                   @blur="onBlur"
                   @keyup.enter="handleLoginSubmit"
@@ -226,7 +226,27 @@
                   </template>
                 </n-input>
               </n-form-item>
-              <n-form-item path="password">
+              <n-form-item path="confirmPassword">
+                <n-input
+                  v-model:value="loginForm.confirmPassword"
+                  type="password"
+                  show-password-on="mousedown"
+                  placeholder="请确认密码"
+                  @focus="onFocus"
+                  @blur="onBlur"
+                  @keyup.enter="handleLoginSubmit"
+                >
+                  <template #prefix>
+                    <n-icon
+                      size="20"
+                      class="lang"
+                    >
+                      <LockClosedOutline></LockClosedOutline>
+                    </n-icon>
+                  </template>
+                </n-input>
+              </n-form-item>
+              <n-form-item path="invite_code">
                 <n-input
                   v-model:value="loginForm.invite_code"
                   placeholder="请输入邀请码"
@@ -277,10 +297,40 @@ async function getCaptcha() {
   }
 }
 
-const loginRules = {
+// 基础验证规则
+const baseRules = {
   id: { required: true, message: '请输入账号', trigger: 'blur' },
-  password: { required: true, message: '请输入密码', trigger: 'blur' },
+  password: {
+    required: true,
+    message: '请输入密码',
+    trigger: 'blur',
+  },
   captcha_code: { required: true, message: '请输入验证码', trigger: 'blur' },
+  invite_code: { required: true, message: '请输入邀请码', trigger: 'blur' },
+};
+
+// 注册表单验证规则（带密码复杂度和确认验证）
+const registerRules = {
+  id: { required: true, message: '请输入用户名', trigger: 'blur' },
+  password: {
+    required: true,
+    message: '密码至少包含字母和数字，长度不少于6位',
+    trigger: 'blur',
+    pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,}$/,
+  },
+  confirmPassword: {
+    required: true,
+    message: '请确认密码',
+    trigger: 'blur',
+    validator: (_, value) => {
+      if (value === '') {
+        return new Error('请确认密码');
+      } else if (value !== loginForm.value.password) {
+        return new Error('两次输入的密码不一致');
+      }
+    },
+  },
+  invite_code: { required: true, message: '请输入邀请码', trigger: 'blur' },
 };
 
 const router = useRouter();
@@ -290,6 +340,7 @@ const userStore = useUserStore();
 const loginForm = ref({
   id: '',
   password: '',
+  confirmPassword: '',
   invite_code: '',
   captcha_code: '',
 });

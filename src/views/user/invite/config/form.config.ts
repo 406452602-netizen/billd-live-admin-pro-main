@@ -56,7 +56,7 @@ export const formConfig = (): Promise<IForm<IInviteAgent>> => {
         type: FormTypeEnum.number,
         label: '代理人比例',
         step: 5,
-        placeholder: `请输入代理人比例(0-${maxAccount})`,
+        placeholder: `请输入整数代理人比例`,
         max: maxAccount,
         rule: {
           required: true,
@@ -66,6 +66,9 @@ export const formConfig = (): Promise<IForm<IInviteAgent>> => {
             console.log('rule', rule);
             if (value > maxAccount || value < 0) {
               return new Error(`代理人比例不能大于${maxAccount}或小于0`);
+            }
+            if (!Number.isInteger(value)) {
+              return new Error('代理人比例必须是整数');
             }
           },
         },
