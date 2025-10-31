@@ -1,10 +1,14 @@
+import { NButton } from 'naive-ui';
 import { TableColumns } from 'naive-ui/es/data-table/src/interface';
 import { h } from 'vue';
 
 import { IUser, UserStatusEnum } from '@/interface';
 
 // eslint-disable-next-line
-export const columnsConfig = (_t): TableColumns<IUser> => {
+export const columnsConfig = (
+  _t,
+  handleUserIdClick?: (userId: number) => void
+): TableColumns<IUser> => {
   return [
     {
       title: 'id',
@@ -12,6 +16,23 @@ export const columnsConfig = (_t): TableColumns<IUser> => {
       align: 'center',
       width: 100,
       fixed: 'left',
+      render(row) {
+        // 如果是代理商，则显示可点击的ID
+        if (row.is_agent && handleUserIdClick) {
+          return h(
+            NButton,
+            {
+              size: 'small',
+              type: 'primary',
+              text: true,
+              onClick: () => handleUserIdClick(row.id!),
+            },
+            { default: () => row.id }
+          );
+        }
+        // 普通会员显示普通ID
+        return row.id;
+      },
     },
     {
       title: '用户名',

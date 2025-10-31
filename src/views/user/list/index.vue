@@ -4,7 +4,21 @@
       :search-form-config="searchForm"
       :init-value="params"
       @click-search="handleSearch"
-    ></HSearch>
+    >
+      <template #left>
+        <n-breadcrumb>
+          <n-breadcrumb-item @click="handleBreadcrumbClick(-1)"
+            >全部用户
+          </n-breadcrumb-item>
+          <n-breadcrumb-item
+            v-for="(item, index) in breadcrumbList"
+            :key="index"
+            @click="handleBreadcrumbClick(index)"
+            >用户ID: {{ item }}
+          </n-breadcrumb-item>
+        </n-breadcrumb>
+      </template>
+    </HSearch>
     <n-data-table
       remote
       :scroll-x="scrollX"
@@ -167,6 +181,70 @@ const params = ref<ISearch>({
 const defaultCheckedKeys = ref([]);
 const formRef = ref<any>(null);
 const addUserRef = ref<InstanceType<typeof AddUser>>();
+const breadcrumbList = ref<any[]>([]);
+// 保存原始参数，用于在没有数据时恢复
+const originalParams = ref({ ...params.value });
+
+// 处理用户ID点击事件
+const handleUserIdClick = async (userId: any) => {
+  try {
+    // 保存原始参数，用于在没有数据时恢复
+    originalParams.value = { ...params.value };
+
+    // 修改查询参数，设置parent_user_id
+    params.value.parent_user_id = userId;
+
+    tableListLoading.value = true;
+    const res: any = await fetchUserList({
+      ...params.value,
+      pageSize: pagination.pageSize,
+      nowPage: 1,
+    });
+
+    tableListLoading.value = false;
+
+    if (res.code === 200) {
+      // 检查是否有数据
+      if (res.data.rows.length === 0) {
+        // 没有找到下级用户，显示提示，恢复原始参数
+        window.$message.warning('没有找到该用户的下级信息');
+        params.value = { ...originalParams.value };
+        return;
+      }
+
+      // 有数据时更新面包屑和表格数据
+      breadcrumbList.value.push(userId);
+      tableListData.value = res.data.rows;
+      total.value = res.data.total;
+      pagination.page = 1;
+      pagination.itemCount = res.data.total;
+    } else {
+      // 请求失败时恢复参数
+      params.value = { ...originalParams.value };
+      Promise.reject(res);
+    }
+  } catch (err) {
+    // 异常时恢复参数
+    params.value = { ...originalParams.value };
+    Promise.reject(err);
+  }
+};
+
+// 处理面包屑点击事件
+const handleBreadcrumbClick = (index: number) => {
+  if (index === -1) {
+    // 点击根节点，清空父用户ID和面包屑
+    params.value.parent_user_id = undefined;
+    breadcrumbList.value = [];
+  } else {
+    // 点击面包屑中的某个用户，显示该用户的下级
+    params.value.parent_user_id = breadcrumbList.value[index];
+    // 截取面包屑数组
+    breadcrumbList.value = breadcrumbList.value.slice(0, index + 1);
+  }
+
+  handlePageChange(1);
+};
 
 const createColumns = (): TableColumns<IUser> => {
   const action: TableColumns<IUser> = [
@@ -250,7 +328,7 @@ const createColumns = (): TableColumns<IUser> => {
       },
     },
   ];
-  return [...columnsConfig(t), ...action];
+  return [...columnsConfig(t, handleUserIdClick), ...action];
 };
 const searchForm = ref(searchFormConfig(t));
 
