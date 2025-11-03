@@ -148,10 +148,10 @@
                   <n-input
                     v-model:value="loginForm.captcha_code"
                     placeholder="请输入验证码"
+                    style="flex: 1"
                     @focus="onFocus"
                     @blur="onBlur"
                     @keyup.enter="handleLoginSubmit"
-                    style="flex: 1"
                   />
                   <div
                     style="
@@ -173,8 +173,8 @@
               block
               secondary
               strong
-              @click="handleLoginSubmit"
               :loading="isLoading"
+              @click="handleLoginSubmit"
             >
               登录
             </n-button>
@@ -183,80 +183,85 @@
             name="userInvite"
             tab="邀请码注册"
           >
-            <n-form
-              ref="loginFormRef"
-              label-placement="left"
-              size="large"
-              :model="loginForm"
-              :rules="registerRules"
+            <n-space
+              vertical
+              :size="12"
             >
-              <n-form-item path="id">
-                <n-input
-                  v-model:value="loginForm.id"
-                  type="text"
-                  placeholder="请输入用户名"
-                >
-                  <template #prefix>
-                    <n-icon
-                      size="20"
-                      class="lang"
-                    >
-                      <PersonOutline></PersonOutline>
-                    </n-icon>
-                  </template>
-                </n-input>
-              </n-form-item>
-              <n-form-item path="password">
-                <n-input
-                  v-model:value="loginForm.password"
-                  type="password"
-                  show-password-on="mousedown"
-                  placeholder="请输入密码(至少包含字母和数字)"
-                  @focus="onFocus"
-                  @blur="onBlur"
-                  @keyup.enter="handleLoginSubmit"
-                >
-                  <template #prefix>
-                    <n-icon
-                      size="20"
-                      class="lang"
-                    >
-                      <LockClosedOutline></LockClosedOutline>
-                    </n-icon>
-                  </template>
-                </n-input>
-              </n-form-item>
-              <n-form-item path="confirmPassword">
-                <n-input
-                  v-model:value="loginForm.confirmPassword"
-                  type="password"
-                  show-password-on="mousedown"
-                  placeholder="请确认密码"
-                  @focus="onFocus"
-                  @blur="onBlur"
-                  @keyup.enter="handleLoginSubmit"
-                >
-                  <template #prefix>
-                    <n-icon
-                      size="20"
-                      class="lang"
-                    >
-                      <LockClosedOutline></LockClosedOutline>
-                    </n-icon>
-                  </template>
-                </n-input>
-              </n-form-item>
-              <n-form-item path="invite_code">
-                <n-input
-                  v-model:value="loginForm.invite_code"
-                  placeholder="请输入邀请码"
-                  @focus="onFocus"
-                  @blur="onBlur"
-                  @keyup.enter="handleLoginSubmit"
-                >
-                </n-input>
-              </n-form-item>
-            </n-form>
+              <n-form
+                ref="loginFormRef"
+                label-placement="left"
+                size="large"
+                :model="loginForm"
+                :rules="registerRules"
+              >
+                <n-form-item path="id">
+                  <n-input
+                    v-model:value="loginForm.id"
+                    type="text"
+                    placeholder="请输入用户名"
+                  >
+                    <template #prefix>
+                      <n-icon
+                        size="20"
+                        class="lang"
+                      >
+                        <PersonOutline></PersonOutline>
+                      </n-icon>
+                    </template>
+                  </n-input>
+                </n-form-item>
+                <n-form-item path="password">
+                  <n-input
+                    v-model:value="loginForm.password"
+                    type="password"
+                    show-password-on="mousedown"
+                    placeholder="请输入密码(至少包含字母和数字)"
+                    @focus="onFocus"
+                    @blur="onBlur"
+                    @keyup.enter="handleLoginSubmit"
+                  >
+                    <template #prefix>
+                      <n-icon
+                        size="20"
+                        class="lang"
+                      >
+                        <LockClosedOutline></LockClosedOutline>
+                      </n-icon>
+                    </template>
+                  </n-input>
+                </n-form-item>
+                <n-form-item path="confirmPassword">
+                  <n-input
+                    v-model:value="loginForm.confirmPassword"
+                    type="password"
+                    show-password-on="mousedown"
+                    placeholder="请确认密码"
+                    @focus="onFocus"
+                    @blur="onBlur"
+                    @keyup.enter="handleLoginSubmit"
+                  >
+                    <template #prefix>
+                      <n-icon
+                        size="20"
+                        class="lang"
+                      >
+                        <LockClosedOutline></LockClosedOutline>
+                      </n-icon>
+                    </template>
+                  </n-input>
+                </n-form-item>
+                <n-form-item path="invite_code">
+                  <n-input
+                    v-model:value="loginForm.invite_code"
+                    placeholder="请输入邀请码"
+                    @focus="onFocus"
+                    @blur="onBlur"
+                    @keyup.enter="handleLoginSubmit"
+                  >
+                  </n-input>
+                </n-form-item>
+              </n-form>
+            </n-space>
             <n-button
               type="primary"
               block
@@ -311,7 +316,27 @@ const baseRules = {
 
 // 注册表单验证规则（带密码复杂度和确认验证）
 const registerRules = {
-  id: { required: true, message: '请输入用户名', trigger: 'blur' },
+  id: {
+    required: true,
+    trigger: 'blur',
+    validator: (_, value) => {
+      if (!value) {
+        return new Error('请输入用户名');
+      }
+      if (value.match(/^\d/)) {
+        return new Error('用户名不能以数字开头');
+      }
+      if (!value.match(/^[a-zA-Z0-9_]*$/)) {
+        return new Error('用户名只能包含字母、数字、下划线');
+      }
+      if (value.match(/[\u4e00-\u9fa5]/)) {
+        return new Error('用户名不支持中文');
+      }
+      if (value.match(/[^a-zA-Z0-9_]/)) {
+        return new Error('用户名不支持特殊符号');
+      }
+    },
+  },
   password: {
     required: true,
     message: '密码至少包含字母和数字，长度不少于6位',

@@ -5,27 +5,44 @@
     style="width: 600px"
     preset="dialog"
   >
-    <HForm
-      ref="hFormRef"
-      v-bind="formConfigRes"
-      v-model="formData"
-      :show-action="true"
-      :confirm-loading="confirmLoading"
-      @update:filed="changeData"
-      @click:confirm="submitForm"
-    ></HForm>
+    <n-space
+      vertical
+      :size="12"
+    >
+      <n-alert
+        title="代理占比说明"
+        type="info"
+      >
+        您当前代理占比为{{
+          maxAccount
+        }}%，邀请码的代理占比不能超过您的代理占比。
+      </n-alert>
+      <HForm
+        ref="hFormRef"
+        v-bind="formConfigRes"
+        v-model="formData"
+        :show-action="true"
+        :confirm-loading="confirmLoading"
+        @update:filed="changeData"
+        @click:confirm="submitForm"
+      ></HForm>
+    </n-space>
   </NModal>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 
-const emits = defineEmits(['refresh']);
 import { createInviteAgent } from '@/api/inviteAgent.ts';
 import HForm from '@/components/Base/Form';
 import { InviteAgent } from '@/interface.ts';
+import { useUserStore } from '@/store/user';
 
 import { formConfig, notInviteFormConfig } from '../config/form.config';
+
+const emits = defineEmits(['refresh']);
+const userInfo = useUserStore();
+const maxAccount = Number(userInfo.userInfo?.agent_account_for) * 100;
 
 const formConfigRes = ref();
 const showModal = ref(false);
