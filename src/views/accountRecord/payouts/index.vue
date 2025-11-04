@@ -100,11 +100,11 @@ const route = useRoute();
 // 处理面包屑项点击事件
 const handleBreadcrumbClick = (item, index: number) => {
   if (index === -1) {
-    params.value.parent_user_id = null;
+    params.value.parent_user_id = undefined;
     params.value.user_id = item;
   } else {
     params.value.parent_user_id = item;
-    params.value.user_id = null;
+    params.value.user_id = undefined;
   }
 
   handlePageChange(1);
@@ -230,7 +230,13 @@ columns.forEach((item) => {
 
 onMounted(async () => {
   if (route.query.breadcrumbList) {
-    breadcrumbList.value = route.query.breadcrumbList;
+    // 处理面包屑列表
+    breadcrumbList.value =
+      typeof route.query.breadcrumbList === 'string'
+        ? JSON.parse(route.query.breadcrumbList)
+        : route.query.breadcrumbList;
+
+    // 处理用户ID参数
     if (route.query.isRoot === '1') {
       params.value.user_id = route.query.userId;
       params.value.parent_user_id = null;
@@ -238,23 +244,34 @@ onMounted(async () => {
       params.value.parent_user_id = route.query.userId;
       params.value.user_id = null;
     }
+
+    // 处理时间范围参数：如果存在rangTimeStart和rangTimeEnd，则转换为rangTimeType数组
+    if (route.query.rangTimeStart && route.query.rangTimeEnd) {
+      params.value.rangTimeType = [
+        route.query.rangTimeStart,
+        route.query.rangTimeEnd,
+      ];
+      // 删除不再需要的单独时间参数
+      delete route.query.rangTimeStart;
+      delete route.query.rangTimeEnd;
+    }
+  } else {
+    // 没有面包屑参数时，设置默认时间范围：当前时间和一周前
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 7); // 一周前
+
+    // 格式化日期为YYYY-MM-DD格式
+    const formatDate = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    // 直接设置rangTimeType为时间范围数组，与HSearch组件期望格式一致
+    params.value.rangTimeType = [formatDate(startDate), formatDate(endDate)];
   }
-
-  // 添加默认时间范围：当前时间和一周前
-  const endDate = new Date();
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - 7); // 一周前
-
-  // 格式化日期为YYYY-MM-DD格式
-  const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
-  // 直接设置rangTimeType为时间范围数组，与HSearch组件期望格式一致
-  params.value.rangTimeType = [formatDate(startDate), formatDate(endDate)];
 
   handlePageChange(1);
   formConfigRes.value = await formConfig();
@@ -276,10 +293,20 @@ async function ajaxFetchList(args) {
     };
 
     // 如果存在rangTimeType数组，将其转换为后端API期望的格式
-    if (Array.isArray(requestParams.rangTimeType)) {
-      requestParams.rangTimeStart = requestParams.rangTimeType[0];
-      requestParams.rangTimeEnd = requestParams.rangTimeType[1];
-      requestParams.rangTimeType = 'created_at'; // 设置为created_at表示按创建时间筛选
+    // if (Array.isArray(requestParams.rangTimeType)) {
+    //   requestParams.rangTimeStart = requestParams.rangTimeType[0];
+    //   requestParams.rangTimeEnd = requestParams.rangTimeType[1];
+    //   requestParams.rangTimeType = 'created_at'; // 设置为created_at表示按创建时间筛选
+    // }
+
+    if (route.query.rangTimeStart && route.query.rangTimeEnd) {
+      params.value.rangTimeType = [
+        route.query.rangTimeStart,
+        route.query.rangTimeEnd,
+      ];
+      // 删除不再需要的单独时间参数
+      delete route.query.rangTimeStart;
+      delete route.query.rangTimeEnd;
     }
 
     const res: any = await fetchQuizPayoutsStatistics(requestParams);
