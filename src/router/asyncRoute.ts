@@ -327,7 +327,7 @@ export const asyncRoutes: RouteRecordRaw[] = [
       icon: renderIcon(BagHandleOutline),
       title: 'router.goods',
       sort: ROUTE_SORT.goods,
-      roles: [DEFAULT_ROLE_INFO.SUPER_ADMIN.role_value, 'qyp'],
+      auths: [DEFAULT_AUTH_INFO.GOODS_MANAGEMENT.auth_value],
     },
     children: [
       {
