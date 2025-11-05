@@ -17,7 +17,7 @@ export const WECHAT_REDIRECT_URI = `https://live-admin.${PROD_DOMAIN}/oauth/wech
 export const LIVE_CLIENT_URL = `https://live.${PROD_DOMAIN}`;
 
 // export const INVITE_CODE_URL = `http://192.168.2.96:5173`;
-export const INVITE_CODE_URL = `http://43.128.68.66`;
+export const INVITE_CODE_URL = `https://agalaxy99.com`;
 
 export const TENCENTCLOUD_APPID = 1305322458; // 腾讯云APPID
 export const TENCENTCLOUD_COS = {
