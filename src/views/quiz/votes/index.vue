@@ -9,8 +9,7 @@
     >
       <template #left>
         <n-breadcrumb>
-          <n-breadcrumb-item
-            @click="handleBreadcrumbClick(userStore.userInfo?.id, -1)"
+          <n-breadcrumb-item @click="handleBreadcrumbClick(getRootUserId, -1)"
             >旗下账号
           </n-breadcrumb-item>
           <n-breadcrumb-item
@@ -140,7 +139,7 @@
 <script lang="ts" setup>
 import { NButton, NSpace } from 'naive-ui';
 import { TableColumns } from 'naive-ui/es/data-table/src/interface';
-import { h, onMounted, ref, watch } from 'vue';
+import { computed, h, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 
@@ -192,6 +191,9 @@ const params = ref<ISearch>({
 });
 
 const showModal = ref(false);
+const getRootUserId = computed(() => {
+  return userStore.userInfo?.is_admin ? 1 : userStore.userInfo?.id;
+});
 
 const getChoseLabel = () => {
   switch (formData.value.votes_type) {

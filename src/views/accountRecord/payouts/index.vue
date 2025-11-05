@@ -9,8 +9,7 @@
     >
       <template #left>
         <n-breadcrumb>
-          <n-breadcrumb-item
-            @click="handleBreadcrumbClick(userStore.userInfo?.id, -1)"
+          <n-breadcrumb-item @click="handleBreadcrumbClick(getRootUserId, -1)"
             >旗下账号
           </n-breadcrumb-item>
           <n-breadcrumb-item
@@ -62,7 +61,7 @@
 
 <script lang="ts" setup>
 import { TableColumns } from 'naive-ui/es/data-table/src/interface';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 
@@ -140,6 +139,9 @@ const showModal = ref(false);
 const showUserStatsModal = ref(false);
 const selectedUserId = ref(null);
 
+const getRootUserId = computed(() => {
+  return userStore.userInfo?.is_admin ? 1 : userStore.userInfo?.id;
+});
 const userIdClick = (info) => {
   if (info.is_agent) {
     // 保存原始参数，用于在没有数据时恢复

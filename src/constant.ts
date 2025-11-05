@@ -152,6 +152,10 @@ export const DEFAULT_AUTH_INFO = {
     auth_value: 'LIVE_PUSH_FORWARD_XIAOHONGSHU',
   },
 
+  USER_INVITE_MANAGE: {
+    id: 19,
+    auth_value: 'USER_INVITE_MANAGE',
+  },
   MATCH_MANAGE: {
     id: 20,
     auth_value: 'MATCH_MANAGE',
@@ -218,6 +222,11 @@ export const DEFAULT_AUTH_INFO = {
   AD_MANAGEMENT: {
     id: 35,
     auth_value: 'AD_MANAGEMENT',
+  },
+
+  GOODS_MANAGEMENT: {
+    id: 36,
+    auth_value: 'GOODS_MANAGEMENT',
   },
 };
 

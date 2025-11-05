@@ -54,7 +54,7 @@ export const formConfig = (): Promise<IForm<IInviteAgent>> => {
       {
         field: 'agent_account_for',
         type: FormTypeEnum.number,
-        label: `代理人比例(0%-${maxAccount}%)`,
+        label: `f分成占比(0%-${maxAccount}%)`,
         step: 5,
         placeholder: `请输入整数代理人比例`,
         max: maxAccount,

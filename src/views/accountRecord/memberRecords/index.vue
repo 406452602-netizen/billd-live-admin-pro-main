@@ -9,7 +9,7 @@
       <template #left>
         <n-breadcrumb>
           <n-breadcrumb-item
-            @click="handleBreadcrumbClick(userStore.userInfo?.id, -1)"
+            @click="handleBreadcrumbClick(getRootUserId, -1)"
             >旗下账号
           </n-breadcrumb-item>
           <n-breadcrumb-item
@@ -44,7 +44,7 @@
 
 <script lang="ts" setup>
 import { TableColumns } from 'naive-ui/es/data-table/src/interface';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -85,6 +85,10 @@ const tableListLoading = ref(false);
 const params = ref<ISearch>({
   orderName: 'created_at',
   orderBy: 'desc',
+});
+
+const getRootUserId = computed(() => {
+  return userStore.userInfo?.is_admin ? 1 : userStore.userInfo?.id;
 });
 
 // 用户统计信息弹框相关

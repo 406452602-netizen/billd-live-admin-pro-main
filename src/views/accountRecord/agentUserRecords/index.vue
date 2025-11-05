@@ -7,8 +7,7 @@
     >
       <template #left>
         <n-breadcrumb>
-          <n-breadcrumb-item
-            @click="handleBreadcrumbClick(userStore.userInfo?.id, -1)"
+          <n-breadcrumb-item @click="handleBreadcrumbClick(getRootUserId, -1)"
             >旗下账号
           </n-breadcrumb-item>
           <n-breadcrumb-item
@@ -35,7 +34,7 @@
 
 <script lang="ts" setup>
 import { TableColumns } from 'naive-ui/es/data-table/src/interface';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 
@@ -80,6 +79,9 @@ columns.value.forEach((item) => {
   }
 });
 
+const getRootUserId = computed(() => {
+  return userStore.userInfo?.is_admin ? 1 : userStore.userInfo?.id;
+});
 /**
  * 处理面包屑点击事件
  * @param item 点击的面包屑项（用户ID）
