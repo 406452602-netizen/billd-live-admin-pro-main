@@ -8,7 +8,7 @@ export const formConfig = ({
   quizTypeOption,
   quizSeasonsOption,
   quizTeamOption,
-  liveRoomOption,
+  // liveRoomOption,
   bureauOption,
 }: {
   quizTypeOption: ReturnType<typeof ref<{ label: any; value: number }[]>>;
@@ -114,13 +114,13 @@ export const formConfig = ({
         label: '时间范围',
         rule: { required: true, trigger: 'blur', type: 'any' },
       },
-      {
-        field: 'live_room_id',
-        type: FormTypeEnum.select,
-        label: '关联直播间',
-        options: liveRoomOption.value,
-        rule: { required: true, trigger: 'blur', type: 'any' },
-      },
+      // {
+      //   field: 'live_room_id',
+      //   type: FormTypeEnum.select,
+      //   label: '关联直播间',
+      //   options: liveRoomOption.value,
+      //   rule: { required: true, trigger: 'blur', type: 'any' },
+      // },
     ],
   };
 };

@@ -185,7 +185,7 @@ const createColumns = (): TableColumns<IRechargeRecord> => {
       align: 'center',
       fixed: 'right',
       render(row) {
-        if (userStore.userInfo?.id === 1) {
+        if (userStore.userInfo?.is_admin) {
           return h(
             NSpace,
             {

@@ -23,14 +23,14 @@
       :title="t('common.add')"
       preset="dialog"
     >
-      <template #action>
-        <n-button
-          type="info"
-          @click="createLiveRoom"
-        >
-          创建直播间
-        </n-button>
-      </template>
+      <!--      <template #action>-->
+      <!--        <n-button-->
+      <!--          type="info"-->
+      <!--          @click="createLiveRoom"-->
+      <!--        >-->
+      <!--          创建直播间-->
+      <!--        </n-button>-->
+      <!--      </template>-->
       <n-card
         :bordered="false"
         size="huge"
@@ -331,7 +331,7 @@ import {
   fetchLiveLiveRoomIsLive,
 } from '@/api/live'; // 假设的 API 函数
 import {
-  fetchCreateUserLiveRoom,
+  // fetchCreateUserLiveRoom,
   fetchUpdateLiveRoomKey,
 } from '@/api/liveRoom.ts';
 import {
@@ -621,24 +621,24 @@ columns.forEach((item) => {
     scrollX.value += Number(item.width);
   }
 });
-const createLiveRoom = () => {
-  fetchCreateUserLiveRoom().then((res) => {
-    if (res.code === 200) {
-      liveRoomInfo.value = res.data;
-      window.$message.success('创建直播间成功');
-      userStore.getUserInfo();
-      liveRoomList();
-      formConfigRes.value = formConfig({
-        quizSeasonsOption: seasonOption,
-        quizTypeOption: typeOption,
-        quizTeamOption: teamOption,
-        formData,
-        liveRoomOption,
-        bureauOption,
-      });
-    }
-  });
-};
+// const createLiveRoom = () => {
+//   fetchCreateUserLiveRoom().then((res) => {
+//     if (res.code === 200) {
+//       liveRoomInfo.value = res.data;
+//       window.$message.success('创建直播间成功');
+//       userStore.getUserInfo();
+//       liveRoomList();
+//       formConfigRes.value = formConfig({
+//         quizSeasonsOption: seasonOption,
+//         quizTypeOption: typeOption,
+//         quizTeamOption: teamOption,
+//         formData,
+//         liveRoomOption,
+//         bureauOption,
+//       });
+//     }
+//   });
+// };
 
 onMounted(async () => {
   const res = await fetchQuizMatchTypesList({});
